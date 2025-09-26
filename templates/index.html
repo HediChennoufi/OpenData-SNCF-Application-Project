@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Planificateur de trajet en train</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <style>
+      /* Loader CSS */
+      #loader {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid #3498db;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        animation: spin 1s linear infinite;
+        z-index: 9999;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg);}
+        100% { transform: rotate(360deg);}
+      }
+    </style>
+</head>
+<body>
+    <h1>Planificateur de trajet en train</h1>
+
+    <!-- Loader rond -->
+    <!-- <div id="loader"></div> -->
+
+    <div class="main-container">
+      <div class="menu">
+        <form method="post" id="formulaire">
+            Gare de départ : 
+            <input id="gare_origine" type="text" name="adresse" required><br><br>
+            Heure de départ : 
+            <input type="number" name="heure_depart" min="1" required><br><br>
+            Temps max trajet (heures) : <input type="number" name="temps_trajet" min="1" required><br><br>
+            Heure maximum du retour : <input type="number" name="heure_retour" min="1" required><br><br>
+            Date : <input type="date" name="date" required><br><br>
+            Abonnement MAX : <input type="checkbox" name="abonnement_max" value="oui"><br><br>
+            <input type="submit" value="Rechercher">
+        </form>
+      </div>
+
+      <div class="map-container" id="map-container" style="width: 600px; height: 600px;">
+          <div id="loader" ></div>
+          {% if carte %}
+              {{ carte|safe }}
+          {% endif %}
+      </div>
+    </div>
+
+    <script>
+    $(function() {
+        $("#gare_origine").autocomplete({
+            source: function(request, response) {
+                $.getJSON("/autocomplete", { q: request.term }, function(data) {
+                    response(data);
+                });
+            },
+            minLength: 2
+        });
+    });
+    // Afficher le loader au moment de soumettre le formulaire
+    document.getElementById('formulaire').addEventListener('submit', function() {
+        document.getElementById('loader').style.display = 'block';
+        // Désactive tous les champs pour empêcher modification pendant chargement
+        // Désactive uniquement le bouton submit
+        document.querySelector('#formulaire input[type="submit"]').disabled = true;
+
+    });
+    </script>
+    
+    <div style="margin-top:20px;">
+        {% if message %}
+            <div style="color:red;">{{ message|safe }}</div>
+        {% endif %}
+    </div>
+</body>
+</html>
