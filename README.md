@@ -1,4 +1,4 @@
-### Planificateur d'Escapades MAX
+# Planificateur d'Escapades MAX
 
 ## Présentation
 
